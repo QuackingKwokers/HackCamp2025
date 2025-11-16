@@ -121,19 +121,19 @@ public class FoodTrackerGUI extends JFrame {
     private JPanel createBottomPanel() {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         
-        JButton addButton = new JButton("➕ Add Food");
+        JButton addButton = new JButton("Add Food");
         addButton.addActionListener(e -> showAddFoodDialog());
         
-        JButton viewDetailsButton = new JButton("📋 View Details");
+        JButton viewDetailsButton = new JButton("View Details");
         viewDetailsButton.addActionListener(e -> viewSelectedFoodDetails());
         
-        JButton removeButton = new JButton("❌ Remove");
+        JButton removeButton = new JButton("Remove");
         removeButton.addActionListener(e -> removeSelectedFood());
         
-        JButton sampleDataButton = new JButton("📦 Load Sample Data");
+        JButton sampleDataButton = new JButton("Load Sample Data");
         sampleDataButton.addActionListener(e -> loadSampleData());
         
-        JButton refreshButton = new JButton("🔄 Refresh");
+        JButton refreshButton = new JButton("Refresh");
         refreshButton.addActionListener(e -> updateTableData());
         
         bottomPanel.add(addButton);
