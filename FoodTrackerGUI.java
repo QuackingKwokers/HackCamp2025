@@ -147,87 +147,52 @@ public class FoodTrackerGUI extends JFrame {
     
     private void showAddFoodDialog() {
         JDialog dialog = new JDialog(this, "Add Food", true);
-        dialog.setSize(450, 400);
+        dialog.setSize(500, 450);
         dialog.setLocationRelativeTo(this);
+        dialog.setResizable(false);
         
-        // Use BorderLayout for better control
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        // Main panel using BoxLayout (vertical)
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(Color.WHITE);
         
-        // Form panel with GridBagLayout for better layout control
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        
-        // Name
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 0.3;
-        formPanel.add(new JLabel("Food Name:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 0.7;
-        JTextField nameField = new JTextField(20);
-        formPanel.add(nameField, gbc);
-        
-        // Quantity
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0.3;
-        formPanel.add(new JLabel("Quantity:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 0.7;
-        JTextField quantityField = new JTextField(20);
-        formPanel.add(quantityField, gbc);
-        
-        // Unit
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 0.3;
-        formPanel.add(new JLabel("Unit:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 0.7;
+        // Helper function to create row
+        JTextField nameField = createFormRow(mainPanel, "Food Name:", new JTextField(25));
+        JTextField quantityField = createFormRow(mainPanel, "Quantity:", new JTextField(25));
         JComboBox<String> unitCombo = new JComboBox<>(new String[]{"pcs", "kg", "L", "g", "ml"});
-        formPanel.add(unitCombo, gbc);
-        
-        // Category
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.weightx = 0.3;
-        formPanel.add(new JLabel("Category:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 0.7;
+        createFormRow(mainPanel, "Unit:", unitCombo);
         JComboBox<String> categoryCombo = new JComboBox<>(new String[]{"dairy", "produce", "meat", "pantry", "frozen", "other"});
-        formPanel.add(categoryCombo, gbc);
+        createFormRow(mainPanel, "Category:", categoryCombo);
+        JTextField dateField = createFormRow(mainPanel, "Expiry Date (yyyy-MM-dd):", new JTextField(25));
         
-        // Expiry Date
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.weightx = 0.3;
-        formPanel.add(new JLabel("Expiry Date (yyyy-MM-dd):"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 0.7;
-        JTextField dateField = new JTextField(20);
-        formPanel.add(dateField, gbc);
-        
-        mainPanel.add(formPanel, BorderLayout.CENTER);
+        // Spacing
+        mainPanel.add(Box.createVerticalStrut(20));
         
         // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton addButton = new JButton("✓ Add");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        buttonPanel.setBackground(Color.WHITE);
+        JButton addButton = new JButton("✓ Add Food");
         JButton cancelButton = new JButton("✗ Cancel");
+        
+        addButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        cancelButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        addButton.setPreferredSize(new Dimension(120, 40));
+        cancelButton.setPreferredSize(new Dimension(120, 40));
         
         addButton.addActionListener(e -> {
             try {
                 String name = nameField.getText().trim();
                 if (name.isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "Food name cannot be empty!");
+                    nameField.requestFocus();
                     return;
                 }
                 
                 int quantity = Integer.parseInt(quantityField.getText().trim());
                 if (quantity <= 0) {
                     JOptionPane.showMessageDialog(dialog, "Quantity must be greater than 0!");
+                    quantityField.requestFocus();
                     return;
                 }
                 
@@ -242,9 +207,11 @@ public class FoodTrackerGUI extends JFrame {
                 
                 JOptionPane.showMessageDialog(this, "✓ Food added successfully!");
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid quantity! Please enter a number.");
+                JOptionPane.showMessageDialog(dialog, "Invalid quantity! Must be a whole number.");
+                quantityField.requestFocus();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage());
+                JOptionPane.showMessageDialog(dialog, "Invalid date! Use format: yyyy-MM-dd");
+                dateField.requestFocus();
             }
         });
         
@@ -252,10 +219,41 @@ public class FoodTrackerGUI extends JFrame {
         
         buttonPanel.add(addButton);
         buttonPanel.add(cancelButton);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        mainPanel.add(buttonPanel);
         
         dialog.add(mainPanel);
         dialog.setVisible(true);
+    }
+    
+    // Helper method to create form rows
+    private <T extends JComponent> T createFormRow(JPanel parent, String label, T component) {
+        JPanel row = new JPanel();
+        row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+        row.setBackground(Color.WHITE);
+        row.setMaximumSize(new Dimension(400, 40));
+        
+        JLabel labelComponent = new JLabel(label);
+        labelComponent.setPreferredSize(new Dimension(180, 30));
+        labelComponent.setFont(new Font("Arial", Font.PLAIN, 13));
+        
+        if (component instanceof JTextField) {
+            ((JTextField) component).setFont(new Font("Arial", Font.PLAIN, 13));
+        } else if (component instanceof JComboBox) {
+            ((JComboBox<?>) component).setFont(new Font("Arial", Font.PLAIN, 13));
+        }
+        component.setMaximumSize(new Dimension(250, 35));
+        component.setPreferredSize(new Dimension(250, 35));
+        
+        row.add(labelComponent);
+        row.add(Box.createHorizontalStrut(10));
+        row.add(component);
+        row.add(Box.createHorizontalGlue());
+        
+        parent.add(row);
+        parent.add(Box.createVerticalStrut(8));
+        
+        return component;
     }
     
     private void viewSelectedFoodDetails() {
